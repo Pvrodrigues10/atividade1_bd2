@@ -11,4 +11,3 @@ def connect():
     )
     except psycopg.OperationalError as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
-        
