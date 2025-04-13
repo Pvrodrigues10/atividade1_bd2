@@ -1,4 +1,7 @@
-from database import connect
+import sys
+sys.path.append('../')
+
+from dao.database import connect
 
 class InserePedido:
     def inserePedidoInjection(pedido):        
@@ -53,3 +56,4 @@ class InserePedido:
                 sessao.close()
                 northwind.close()
                 return True
+
