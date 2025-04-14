@@ -3,52 +3,94 @@ from pathlib import Path
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-# Adiciona o diretório raiz do projeto (onde está a pasta src) ao sys.path
+# Adiciona o diretório raiz do projeto ao sys.path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-# Agora podemos importar do src normalmente
+# Importações do projeto
 from src.controller.pedido_controller import PedidoController
 
-# Caminho absoluto da pasta de templates
+# Configuração de paths
 TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "src" / "view" / "templates"
 
-# Inicializa o app Flask com o template_folder correto
+# Inicialização do Flask
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
-CORS(app)  # Libera o uso de fetch() e AJAX no navegador
+CORS(app)
 
-# Rota principal - carrega o formulário HTML
+# Rotas principais
 @app.route("/")
-def form():
+def home():
+    return render_template("base.html")
+
+@app.route("/novo_pedido")
+def novo_pedido():
     return render_template("novo_pedido.html")
 
+@app.route("/consulta_pedido")
+def consulta_pedido():
+    return render_template("consulta_pedido.html")
 
-# Rota da API que o formulário envia os dados
+@app.route("/ranking")
+def ranking():
+    return render_template("ranking.html")
+
+# API Endpoints
 @app.route("/api/pedidos", methods=["POST"])
 def cadastrar_pedido():
     try:
         dados = request.get_json()
-        print(dados)
         customer = dados.get("customer")
         employee = dados.get("employee")
         items = dados.get("items")
 
-        # Verifica se o cabeçalho "X-Injection-Mode" está ativado
+        # Verifica se o modo inseguro de injeção está ativado
         injection = request.headers.get("X-Injection-Mode", "false").lower() == "true"
 
-        # Chama o controller
+        # Processa o pedido
         orderid = PedidoController.criarPedidoCompleto(
             customer, employee, items, injection
         )
 
         if orderid:
             return jsonify({"success": True, "orderid": orderid})
-        else:
-            return jsonify({"success": False, "detail": "Erro ao criar pedido"}), 400
+        return jsonify({"success": False, "detail": "Erro ao criar pedido"}), 400
 
     except Exception as e:
         return jsonify({"success": False, "detail": str(e)}), 500
+    
 
 
-# Inicia o servidor
+@app.route("/api/consulta", methods=["GET"])
+def api_consulta_pedido():
+    try:
+        orderid = request.args.get("orderid", type=int)
+        if not orderid:
+            return jsonify({
+                "success": False,
+                "detail": "OrderID é obrigatório"
+            }), 400
+
+        infosPedidos = PedidoController.consultaPedido(orderid)
+        
+        if infosPedidos:
+            return jsonify({
+                "success": True,
+                "pedido": infosPedidos
+            })
+        return jsonify({
+            "success": False,
+            "detail": "Pedido não encontrado"
+        }), 404
+    
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "detail": "OrderID deve ser um número válido"
+        }), 400
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "detail": f"Erro interno: {str(e)}"
+        }), 500
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Pedido - Northwind</title>
     <style>
-        /* Estilos Base (consistentes com novo_pedido.html) */
         * {
             margin: 0;
             padding: 0;
@@ -30,7 +29,7 @@
         }
         
         .card-header {
-            background-color: #2ecc71; /* Verde diferente para diferenciar */
+            background-color: #2c3e50;
             color: white;
             padding: 20px;
         }
@@ -46,7 +45,6 @@
             padding: 30px;
         }
         
-        /* Estilos Específicos da Consulta */
         .search-box {
             display: flex;
             gap: 10px;
@@ -75,9 +73,8 @@
             background-color: #2980b9;
         }
         
-        /* Resultado da Consulta */
         .result-container {
-            display: none; /* Inicialmente oculto */
+            display: none;
             margin-top: 20px;
             animation: fadeIn 0.5s ease-out;
         }
@@ -106,25 +103,7 @@
             margin-bottom: 5px;
         }
         
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .badge-success {
-            background-color: #2ecc71;
-            color: white;
-        }
-        
-        .badge-warning {
-            background-color: #f39c12;
-            color: white;
-        }
-        
-        /* Tabela de Itens */
+        /* Estilos da tabela de itens */
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -155,12 +134,15 @@
             text-align: right;
         }
         
+        .text-center {
+            text-align: center;
+        }
+        
         .table-footer {
             font-weight: bold;
             background-color: #ecf0f1;
         }
         
-        /* Mensagem de erro */
         .error-message {
             display: none;
             padding: 15px;
@@ -171,7 +153,6 @@
             border-left: 4px solid #f5c6cb;
         }
         
-        /* Responsividade */
         @media (max-width: 768px) {
             .order-info {
                 grid-template-columns: 1fr;
@@ -200,55 +181,40 @@
                 <button id="search-button">Consultar</button>
             </div>
             
-            <div class="error-message" id="error-message">
-                Pedido não encontrado. Verifique o número e tente novamente.
-            </div>
+            <div class="error-message" id="error-message"></div>
             
             <div class="result-container" id="result-container">
                 <div class="order-info">
                     <div class="info-group">
                         <h4>Informações do Pedido</h4>
-                        <p><strong>Número:</strong> <span id="order-number">10248</span></p>
-                        <p><strong>Data:</strong> <span id="order-date">04/07/2023</span></p>
-                        <p><strong>Status:</strong> <span class="badge badge-success" id="order-status">Enviado</span></p>
+                        <p><strong>Número:</strong> <span id="order-number"></span></p>
+                        <p><strong>Data:</strong> <span id="order-date"></span></p>
                     </div>
                     
                     <div class="info-group">
-                        <h4>Informações de Entrega</h4>
-                        <p><strong>Cliente:</strong> <span id="customer-name">Alfreds Futterkiste</span></p>
-                        <p><strong>Vendedor:</strong> <span id="employee-name">Nancy Davolio</span></p>
-                        <p><strong>Data de Envio:</strong> <span id="shipped-date">10/07/2023</span></p>
+                        <h4>Informações do Cliente</h4>
+                        <p><strong>Cliente:</strong> <span id="customer-name"></span></p>
+                        <p><strong>Vendedor:</strong> <span id="employee-name"></span></p>
                     </div>
                 </div>
                 
+                <h4 style="margin-top: 30px; margin-bottom: 15px;">Itens do Pedido</h4>
                 <table class="items-table">
                     <thead>
                         <tr>
                             <th>Produto</th>
-                            <th class="text-right">Quantidade</th>
+                            <th class="text-center">Quantidade</th>
                             <th class="text-right">Preço Unitário</th>
-                            <th class="text-right">Total</th>
+                            <th class="text-right">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody id="items-list">
-                        <!-- Itens serão inseridos via JavaScript -->
-                        <tr>
-                            <td>Chai</td>
-                            <td class="text-right">2</td>
-                            <td class="text-right">R$ 18,00</td>
-                            <td class="text-right">R$ 36,00</td>
-                        </tr>
-                        <tr>
-                            <td>Chang</td>
-                            <td class="text-right">1</td>
-                            <td class="text-right">R$ 19,00</td>
-                            <td class="text-right">R$ 19,00</td>
-                        </tr>
+                        <!-- Itens serão preenchidos via JavaScript -->
                     </tbody>
                     <tfoot>
                         <tr class="table-footer">
                             <td colspan="3" class="text-right"><strong>Total do Pedido:</strong></td>
-                            <td class="text-right"><strong id="order-total">R$ 55,00</strong></td>
+                            <td class="text-right"><strong id="order-total"></strong></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -257,26 +223,84 @@
     </div>
 
     <script>
-        // Simulação de consulta
-        document.getElementById('search-button').addEventListener('click', function() {
-            const orderId = document.getElementById('order-id').value;
-            const resultContainer = document.getElementById('result-container');
-            const errorMessage = document.getElementById('error-message');
+        document.getElementById('search-button').addEventListener('click', async function() {
+    const orderId = document.getElementById('order-id').value;
+    const resultContainer = document.getElementById('result-container');
+    const errorMessage = document.getElementById('error-message');
+    const itemsList = document.getElementById('items-list');
+    
+    // Reset dos elementos
+    resultContainer.style.display = 'none';
+    errorMessage.style.display = 'none';
+    itemsList.innerHTML = '';
+    
+    if (!orderId) {
+        errorMessage.textContent = "Por favor, informe o número do pedido";
+        errorMessage.style.display = 'block';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/consulta?orderid=${orderId}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || "Erro na consulta");
+        }
+        
+        console.log("Resposta da API:", response);
+        const data = await response.json();
+        console.log(data);
+        
+        if (data.success) {
+            // Preencher informações básicas
+            document.getElementById('order-number').textContent = data.pedido.orderid;
+            document.getElementById('order-date').textContent = data.pedido.orderdate || 'Não disponível';
+            document.getElementById('customer-name').textContent = data.pedido.customerName;
+            document.getElementById('employee-name').textContent = data.pedido.employeeName;
             
-            if (!orderId) {
-                errorMessage.textContent = "Por favor, informe o número do pedido";
-                errorMessage.style.display = 'block';
-                resultContainer.style.display = 'none';
-                return;
+            // Preencher itens do pedido
+            if (data.pedido.itens && data.pedido.itens.length > 0) {
+                let totalPedido = 0;
+                
+                data.pedido.itens.forEach(item => {
+                    // Valores padrão para evitar undefined
+                    const quantity = item.quantity || 0;
+                    const unitprice = item.unitprice || 0;
+                    const productname = item.productname || 'Produto não especificado';
+                    const subtotal = quantity * unitprice;
+                    totalPedido += subtotal;
+        
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${productname}</td>
+                        <td class="text-center">${quantity}</td>
+                        <td class="text-right">R$ ${unitprice.toFixed(2)}</td>
+                        <td class="text-right">R$ ${subtotal.toFixed(2)}</td>
+                    `;
+                    itemsList.appendChild(row);
+                });
+                
+                // Exibir total
+                document.getElementById('order-total').textContent = `R$ ${totalPedido.toFixed(2)}`;
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" class="text-center">Nenhum item encontrado</td>';
+                itemsList.appendChild(row);
+                document.getElementById('order-total').textContent = 'R$ 0,00';
             }
             
-            // Simulação - sempre mostra o resultado com dados mockados
             resultContainer.style.display = 'block';
-            errorMessage.style.display = 'none';
-            
-            // Aqui você pode adicionar lógica para buscar dados reais
-            // quando integrar com o backend
-        });
+        } else {
+            throw new Error(data.detail || "Pedido não encontrado");
+        }
+    } catch (error) {
+        console.error("Erro na consulta:", error);
+        errorMessage.textContent = typeof error.message === 'string' ? error.message : "Ocorreu um erro inesperado";
+        errorMessage.style.display = 'block';
+    }
+});
+
     </script>
 </body>
 </html>

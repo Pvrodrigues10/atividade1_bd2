@@ -1,4 +1,5 @@
 from src.dao.pedido_dao import InserePedido, ConsultaIds
+from src.dao.relatorios_dao import Consulta
 from src.model.models import Order, Order_details
 from datetime import datetime
 
@@ -54,3 +55,31 @@ class PedidoController:
         except Exception as e:
             print(f"Erro no controller: {e}")
             return False
+        
+        
+    def consultaPedido(orderid: int):
+        if not orderid:
+            print("OrderID não fornecido")
+            return None
+        
+        try:
+            print(f"Consultando pedido com orderid: {orderid}")
+            pedido_completo = Consulta.consultaPedidoCompleto(orderid)
+            
+            if not pedido_completo:
+                print("Pedido não encontrado")
+                return None
+                
+            return {
+                "orderid": pedido_completo["orderid"],
+                "orderdate": pedido_completo["orderdate"],
+                "customerName": pedido_completo["customerName"],
+                "employeeName": pedido_completo["employeeName"],
+                "customerid": pedido_completo["customerid"],
+                "employeeid": pedido_completo["employeeid"],
+                "itens": pedido_completo["itens"]  
+            }
+            
+        except Exception as e:
+            print(f"Erro no Controller: {e}")
+            return None
