@@ -1,20 +1,33 @@
-from src.dao.pedido_dao import InserePedido
+from src.dao.pedido_dao import InserePedido, ConsultaIds
 from src.model.models import Order, Order_details
 from datetime import datetime
 
 class PedidoController:
     @staticmethod
-    def criarPedidoCompleto(customerid: str, employeeid: int, items: list, injection: bool = False):
-
+    def criarPedidoCompleto(customer: str, employee: str, items: list, injection: bool = False):
         try:   
-            print(f"Recebido - customerid: {customerid}, employeeid: {employeeid}, items: {items}")
+            print(f"Recebido - customerid: {customer}, employeeid: {employee}, items: {items}")
+            
+            # Consultar IDs de forma segura
+            if injection:
+                ids = ConsultaIds.consultar_ids_inseguro(employee, customer)
+            else:
+                ids = ConsultaIds.consultar_ids_seguro(employee, customer)
+            
+            if not ids['employee_ids'] or not ids['customer_ids']:
+                print("Employee ou Customer não encontrado")
+                return False
+                
+            employee_id = ids['employee_ids'][0]
+            customer_id = ids['customer_ids'][0]
+            
             # Criar pedido principal
             orderid = int(datetime.now().timestamp())
             print(f"Novo orderid: {orderid}")
             pedido = Order(
                 orderid=orderid,
-                customerid=customerid,
-                employeeid=employeeid,
+                customerid=customer_id,
+                employeeid=employee_id,
             )
             
             # Inserir pedido

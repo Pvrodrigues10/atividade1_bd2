@@ -187,24 +187,24 @@
       <div class="card-body">
         <form id="formPedido">
           <div class="form-group">
-            <label for="cliente">ID do Cliente:</label>
+            <label for="cliente">Nome do Cliente:</label>
             <input
               type="text"
               id="cliente"
               class="form-control"
               required
-              placeholder="Ex: ALFKI"
+              placeholder="Ex: Maria Anders"
             />
           </div>
 
           <div class="form-group">
-            <label for="vendedor">ID do Vendedor:</label>
+            <label for="vendedor">Nome do Vendedor:</label>
             <input
               type="text"
               id="vendedor"
               class="form-control"
               required
-              placeholder="Ex: 1"
+              placeholder="Ex: Nancy"
             />
           </div>
 
@@ -291,8 +291,8 @@
         formPedido.addEventListener("submit", async function (e) {
           e.preventDefault();
 
-          const customerid = document.getElementById("cliente").value;
-          const employeeid = document.getElementById("vendedor").value;
+          const customer = document.getElementById("cliente").value;
+          const employee = document.getElementById("vendedor").value;
           const injectionMode =
             document.getElementById("modo-injection").checked;
 
@@ -311,8 +311,8 @@
                 "X-Injection-Mode": injectionMode,
               },
               body: JSON.stringify({
-                customerid,
-                employeeid,
+                customer,
+                employee,
                 items,
               }),
             });
