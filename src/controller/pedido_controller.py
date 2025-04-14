@@ -4,21 +4,17 @@ from datetime import datetime
 
 class PedidoController:
     @staticmethod
-    def criarPedidoCompleto(customerid: str, employeeid: int, orderdate: str, items: list, injection: bool = False):
-        try:
-            # Validações
-            if len(customerid) != 5:
-                raise ValueError("ID do cliente deve ter 5 caracteres")
-            if not items:
-                raise ValueError("Adicione pelo menos um item ao pedido")
-            
+    def criarPedidoCompleto(customerid: str, employeeid: int, items: list, injection: bool = False):
+
+        try:   
+            print(f"Recebido - customerid: {customerid}, employeeid: {employeeid}, items: {items}")
             # Criar pedido principal
             orderid = int(datetime.now().timestamp())
+            print(f"Novo orderid: {orderid}")
             pedido = Order(
                 orderid=orderid,
                 customerid=customerid,
                 employeeid=employeeid,
-                orderdate=orderdate
             )
             
             # Inserir pedido
@@ -35,8 +31,6 @@ class PedidoController:
                 item_obj = Order_details(
                     orderid=orderid,
                     productid=item['productid'],
-                    quantity=item['quantity'],
-                    unitprice=item['unitprice']
                 )
                 if not InserePedido.inserir_item_pedido(item_obj):
                     InserePedido.removerPedido(orderid)  # Rollback

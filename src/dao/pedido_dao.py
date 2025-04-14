@@ -5,15 +5,14 @@ sys.path.append(str(Path(__file__).parent.parent))
 from dao.database import connect
 
 class InserePedido:
-    @staticmethod
     def inserePedidoInjection(pedido):        
         conn = None
         try:
             conn = connect()
             with conn.cursor() as cursor:
                 cursor.execute(
-                    f"INSERT INTO orders (orderid, customerid, employeeid, orderdate) "
-                    f"VALUES ({pedido.orderid}, '{pedido.customerid}', {pedido.employeeid}, '{pedido.orderdate}')"
+                    f"INSERT INTO northwind.orders (orderid, customerid, employeeid) "
+                    f"VALUES ({pedido.orderid}, '{pedido.customerid}', {pedido.employeeid})"
                 )
                 conn.commit()
                 return True
@@ -24,16 +23,15 @@ class InserePedido:
         finally:
             if conn: conn.close()
     
-    @staticmethod
     def inserePedidoSeguro(pedido):
         conn = None
         try:
             conn = connect()
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "INSERT INTO orders (orderid, customerid, employeeid, orderdate) "
-                    "VALUES (%s, %s, %s, %s)",
-                    (pedido.orderid, pedido.customerid, pedido.employeeid, pedido.orderdate)
+                    "INSERT INTO northwind.orders (orderid, customerid, employeeid) "
+                    "VALUES (%s, %s, %s)",
+                    (pedido.orderid, pedido.customerid, pedido.employeeid)
                 )
                 conn.commit()
                 return True
@@ -51,9 +49,9 @@ class InserePedido:
             conn = connect()
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "INSERT INTO order_details (orderid, productid, quantity, unitprice) "
-                    "VALUES (%s, %s, %s, %s)",
-                    (item.orderid, item.productid, item.quantity, item.unitprice)
+                    "INSERT INTO northwind.order_details (orderid, productid) "
+                    "VALUES (%s, %s)",
+                    (item.orderid, item.productid)
                 )
                 conn.commit()
                 return True

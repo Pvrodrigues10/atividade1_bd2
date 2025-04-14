@@ -27,10 +27,9 @@ def form():
 def cadastrar_pedido():
     try:
         dados = request.get_json()
-
+        print(dados)
         customerid = dados.get("customerid")
         employeeid = int(dados.get("employeeid"))
-        orderdate = dados.get("orderdate")
         items = dados.get("items")
 
         # Verifica se o cabeçalho "X-Injection-Mode" está ativado
@@ -38,7 +37,7 @@ def cadastrar_pedido():
 
         # Chama o controller
         orderid = PedidoController.criarPedidoCompleto(
-            customerid, employeeid, orderdate, items, injection
+            customerid, employeeid, items, injection
         )
 
         if orderid:
