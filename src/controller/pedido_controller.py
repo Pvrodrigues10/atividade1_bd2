@@ -94,13 +94,8 @@ class PedidoController:
             if not ranking:
                 print("Ranking não encontrado")
                 return None
-                
-            return {
-                "employeeid": ranking[0],
-                "employeeName": ranking[1],
-                "total_orders": ranking[2],
-                "total_value": ranking[3],
-            }
+            print(ranking)
+            return ranking
         
         except Exception as e:
             print(f"Erro no Controller: {e}")
