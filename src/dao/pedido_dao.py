@@ -49,9 +49,9 @@ class InserePedido:
             conn = connect()
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "INSERT INTO northwind.order_details (orderid, productid) "
-                    "VALUES (%s, %s)",
-                    (item.orderid, item.productid)
+                    "INSERT INTO northwind.order_details (orderid, productid, unitprice, quantity) "
+                    "VALUES (%s, %s, %s, %s)",
+                    (item.orderid, item.productid, item.unitprice, item.quantity)
                 )
                 conn.commit()
                 return True

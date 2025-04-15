@@ -47,6 +47,8 @@ class PedidoController:
                 item_obj = Order_details(
                     orderid=orderid,
                     productid=item['productid'],
+                    unitprice=item['unitprice'],
+                    quantity=item['quantity']
                 )
                 if not InserePedido.inserir_item_pedido(item_obj):
                     return False
