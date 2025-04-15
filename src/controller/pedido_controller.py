@@ -1,7 +1,8 @@
 from src.dao.pedido_dao import InserePedido, ConsultaIds
 from src.dao.relatorios_dao import Consulta
 from src.model.models import Order, Order_details
-from datetime import datetime
+import time
+import random
 
 class PedidoController:
     @staticmethod
@@ -9,7 +10,7 @@ class PedidoController:
         try:   
             print(f"Recebido - customerid: {customer}, employeeid: {employee}, items: {items}")
             
-            # Consultar IDs de forma segura
+            # Consulta ids, pois no formulario eh passado os nomes
             if injection:
                 ids = ConsultaIds.consultar_ids_inseguro(employee, customer)
             else:
@@ -23,7 +24,8 @@ class PedidoController:
             customer_id = ids['customer_ids'][0]
             
             # Criar pedido principal
-            orderid = int(datetime.now().timestamp())
+            timestamp = int(time.time() * 1000)  # milissegundos
+            orderid = int(str(timestamp)[-5:])
             print(f"Novo orderid: {orderid}")
             pedido = Order(
                 orderid=orderid,
@@ -47,7 +49,6 @@ class PedidoController:
                     productid=item['productid'],
                 )
                 if not InserePedido.inserir_item_pedido(item_obj):
-                    InserePedido.removerPedido(orderid)  # Rollback
                     return False
                     
             return orderid

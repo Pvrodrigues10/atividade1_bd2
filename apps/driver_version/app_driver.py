@@ -3,13 +3,12 @@ from pathlib import Path
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-# Adiciona o diretório raiz do projeto ao sys.path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-# Importações do projeto
-from controller.pedido_controller import PedidoController
 
-# Configuração de paths
+from src.controller.pedido_controller import PedidoController
+
+
 TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "src" / "view" / "templates"
 
 # Inicialização do Flask
