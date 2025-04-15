@@ -1,5 +1,5 @@
-from src.dao.pedido_dao import InserePedido, ConsultaIds
-from src.dao.relatorios_dao import Consulta
+from src.dao.pedido_daoORM import InserePedido, ConsultaIds
+from src.dao.relatorios_daoORM import Consulta
 from src.model.models import Order, Order_details
 from datetime import datetime
 
@@ -83,21 +83,3 @@ class PedidoController:
         except Exception as e:
             print(f"Erro no Controller: {e}")
             return None
-        
-    def consultaRanking(startDate, endDate):
-        if not startDate or not endDate:
-            print("Datas não fornecidas")
-            return None
-        
-        try:
-            ranking = Consulta.rankingFuncionarios(startDate, endDate)
-            if not ranking:
-                print("Ranking não encontrado")
-                return None
-            print(ranking)
-            return ranking
-        
-        except Exception as e:
-            print(f"Erro no Controller: {e}")
-            return None
-        
