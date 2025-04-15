@@ -7,7 +7,7 @@ from flask_cors import CORS
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 # Importações do projeto
-from src.controller.controller_driver import PedidoController
+from controller.pedido_controller import PedidoController
 
 # Configuração de paths
 TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "src" / "view" / "templates"
