@@ -1,34 +1,33 @@
+from datetime import datetime
 import sys
 from pathlib import Path
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
-from dao.database import connect
 
 sys.path.append(str(Path(__file__).parent.parent))
+from dao.databaseORM import connect
 conn = connect()
 
 # Configuração do ORM com reflexão automática
 Base = automap_base()
-Base.prepare(conn, schema='northwind', reflect=True)
+engine = connect().get_bind()  # Obtém o engine da sessão
+Base.prepare(engine, schema='northwind', reflect=True)
 
-# Mapeia as classes automaticamente
+# Mapeamento das classes
 Order = Base.classes.orders
 OrderDetail = Base.classes.order_details
 Employee = Base.classes.employees
 Customer = Base.classes.customers
 
-# Configura a sessão usando a conexão existente
-Session = sessionmaker(bind=conn)
-
 class InserePedido:
     @staticmethod
     def inserePedidoSeguro(pedido):
-        session = Session()
+        session = connect()  # Obtém nova sessão
         try:
             new_order = Order(
                 orderid=pedido.orderid,
                 customerid=pedido.customerid,
-                employeeid=pedido.employeeid
+                employeeid=pedido.employeeid,
+                orderdate=datetime.now()
             )
             session.add(new_order)
             session.commit()
@@ -42,7 +41,7 @@ class InserePedido:
 
     @staticmethod
     def inserir_item_pedido(item):
-        session = Session()
+        session = connect()
         try:
             new_item = OrderDetail(
                 orderid=item.orderid,
@@ -61,7 +60,7 @@ class InserePedido:
 class ConsultaIds:
     @staticmethod
     def consultar_ids_seguro(employee, customer):
-        session = Session()
+        session = connect()
         try:
             # Consulta usando ORM
             employee_ids = session.query(Employee.employeeid).filter(Employee.firstname == employee).all()

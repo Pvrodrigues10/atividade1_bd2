@@ -23,7 +23,7 @@ def home():
 
 @app.route("/novo_pedido")
 def novo_pedido():
-    return render_template("novo_pedido.html")
+    return render_template("novo_pedidoORM.html")
 
 @app.route("/consulta_pedido")
 def consulta_pedido():
@@ -42,12 +42,9 @@ def cadastrar_pedido():
         employee = dados.get("employee")
         items = dados.get("items")
 
-        # Verifica se o modo inseguro de injeção está ativado
-        injection = request.headers.get("X-Injection-Mode", "false").lower() == "true"
-
         # Processa o pedido
         orderid = PedidoController.criarPedidoCompleto(
-            customer, employee, items, injection
+            customer, employee, items
         )
 
         if orderid:
@@ -91,6 +88,18 @@ def api_consulta_pedido():
             "success": False,
             "detail": f"Erro interno: {str(e)}"
         }), 500
+    
+    
+@app.route("/api/ranking", methods=["GET"])
+def api_ranking():
+    try:
+        startDate = request.args.get("startDate")
+        endDate = request.args.get("endDate")
+        print(f"StartDate: {startDate}, EndDate: {endDate}")
+        ranking = PedidoController.consultaRanking(startDate, endDate)
+        return jsonify({"success": True, "ranking": ranking})
+    except Exception as e:
+        return jsonify({"success": False, "detail": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

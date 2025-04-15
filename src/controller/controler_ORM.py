@@ -5,16 +5,12 @@ from datetime import datetime
 
 class PedidoController:
     @staticmethod
-    def criarPedidoCompleto(customer: str, employee: str, items: list, injection: bool = False):
+    def criarPedidoCompleto(customer: str, employee: str, items: list):
         try:   
             print(f"Recebido - customerid: {customer}, employeeid: {employee}, items: {items}")
-            
-            # Consultar IDs de forma segura
-            if injection:
-                ids = ConsultaIds.consultar_ids_inseguro(employee, customer)
-            else:
-                ids = ConsultaIds.consultar_ids_seguro(employee, customer)
-            
+
+            ids = ConsultaIds.consultar_ids_seguro(employee, customer)
+
             if not ids['employee_ids'] or not ids['customer_ids']:
                 print("Employee ou Customer não encontrado")
                 return False
@@ -29,13 +25,9 @@ class PedidoController:
                 orderid=orderid,
                 customerid=customer_id,
                 employeeid=employee_id,
+                orderdate=datetime.now()
             )
-            
-            # Inserir pedido
-            if injection:
-                success = InserePedido.inserePedidoInjection(pedido)
-            else:
-                success = InserePedido.inserePedidoSeguro(pedido)
+            success = InserePedido.inserePedidoSeguro(pedido)
             
             if not success:
                 return False
@@ -83,3 +75,21 @@ class PedidoController:
         except Exception as e:
             print(f"Erro no Controller: {e}")
             return None
+        
+    def consultaRanking(startDate, endDate):
+        if not startDate or not endDate:
+            print("Datas não fornecidas")
+            return None
+        
+        try:
+            ranking = Consulta.rankingFuncionarios(startDate, endDate)
+            if not ranking:
+                print("Ranking não encontrado")
+                return None
+            print(ranking)
+            return ranking
+        
+        except Exception as e:
+            print(f"Erro no Controller: {e}")
+            return None
+        

@@ -4,9 +4,9 @@ def connect():
     try:
         return psycopg.connect(
             host='localhost',
-            dbname='northwind', 
+            dbname='AulaBD2', 
             user = 'postgres', 
-            password = '1234',
+            password = 'pedro12',
             port = '5432'
     )
     except psycopg.OperationalError as e:
