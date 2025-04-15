@@ -108,3 +108,44 @@ class Consulta:
             return None
         finally:
             if conn: conn.close()
+            
+    
+    def rankingFuncionarios(startDate, endDate):
+        conn = None
+        try:
+            conn = connect()
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 
+                        e.employeeid,
+                        CONCAT(e.firstname, ' ', e.lastname) AS employee_name,
+                        COUNT(o.orderid) AS total_pedidos,
+                        SUM(od.quantity * od.unitprice) AS total_vendido
+                    FROM 
+                        northwind.orders o
+                    JOIN 
+                        northwind.employees e ON o.employeeid = e.employeeid
+                    JOIN 
+                        northwind.order_details od ON o.orderid = od.orderid
+                    WHERE 
+                        o.orderdate BETWEEN %s AND %s
+                    GROUP BY 
+                        e.employeeid, employee_name
+                    ORDER BY 
+                        total_vendido DESC
+                """, (startDate, endDate))
+                
+                raking = []
+                for row in cursor.fetchall():
+                    raking.append({
+                        "employeeid": row[0],
+                        "employee_name": row[1],
+                        "total_pedidos": row[2],
+                        "total_vendido": float(row[3])
+                    })
+                return raking
+        except Exception as e:
+            print(f"Erro ao consultar ranking de funcionários: {e}")
+            return None
+        finally:
+            if conn: conn.close()

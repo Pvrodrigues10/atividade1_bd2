@@ -234,66 +234,12 @@
             <div class="error-message" id="error-message">
                 Selecione um período válido para gerar o ranking.
             </div>
-            
-            <div class="ranking-container" id="ranking-container" style="display: none;">
-                <div class="period-info">
-                    Período: <span id="period-text">01/01/2023 a 31/12/2023</span>
-                </div>
-                
-                <table class="ranking-table">
-                    <thead>
-                        <tr>
-                            <th>Posição</th>
-                            <th>Vendedor</th>
-                            <th class="text-right">Total Pedidos</th>
-                            <th class="text-right">Valor Total</th>
-                            <th class="text-right">Média por Pedido</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ranking-data">
-                        <!-- Dados serão preenchidos via JavaScript -->
-                        <tr class="top-rank">
-                            <td><span class="medal gold">1</span></td>
-                            <td>Nancy Davolio</td>
-                            <td class="text-right">42</td>
-                            <td class="text-right">R$ 25.380,00</td>
-                            <td class="text-right">R$ 604,29</td>
-                        </tr>
-                        <tr class="top-rank">
-                            <td><span class="medal silver">2</span></td>
-                            <td>Andrew Fuller</td>
-                            <td class="text-right">38</td>
-                            <td class="text-right">R$ 21.850,00</td>
-                            <td class="text-right">R$ 575,00</td>
-                        </tr>
-                        <tr class="top-rank">
-                            <td><span class="medal bronze">3</span></td>
-                            <td>Janet Leverling</td>
-                            <td class="text-right">35</td>
-                            <td class="text-right">R$ 19.420,00</td>
-                            <td class="text-right">R$ 554,86</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Margaret Peacock</td>
-                            <td class="text-right">32</td>
-                            <td class="text-right">R$ 18.150,00</td>
-                            <td class="text-right">R$ 567,19</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <div class="chart-container">
-                    <canvas id="ranking-chart"></canvas>
-                </div>
-            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Simulação de geração de ranking
-        document.getElementById('generate-btn').addEventListener('click', function() {
+        document.getElementById('generate-btn').addEventListener('click', async function() {
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
             const rankingContainer = document.getElementById('ranking-container');
@@ -308,68 +254,24 @@
             // Formatar datas para exibição
             const startFormatted = new Date(startDate).toLocaleDateString();
             const endFormatted = new Date(endDate).toLocaleDateString();
-            document.getElementById('period-text').textContent = 
-                `${startFormatted} a ${endFormatted}`;
-            
+            console.log(`Ranking gerado de ${startFormatted} a ${endFormatted}`);
             // Mostrar resultados
             errorMessage.style.display = 'none';
-            rankingContainer.style.display = 'block';
             
-            // Criar gráfico (simulação)
-            createChart();
-        });
-        
-        function createChart() {
-            const ctx = document.getElementById('ranking-chart').getContext('2d');
-            
-            // Dados mockados para o gráfico
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Nancy Davolio', 'Andrew Fuller', 'Janet Leverling', 'Margaret Peacock'],
-                    datasets: [{
-                        label: 'Valor Total Vendido',
-                        data: [25380, 21850, 19420, 18150],
-                        backgroundColor: [
-                            'rgba(241, 196, 15, 0.7)',
-                            'rgba(189, 195, 199, 0.7)',
-                            'rgba(230, 126, 34, 0.7)',
-                            'rgba(52, 152, 219, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(241, 196, 15, 1)',
-                            'rgba(189, 195, 199, 1)',
-                            'rgba(230, 126, 34, 1)',
-                            'rgba(52, 152, 219, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return 'R$ ' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return 'R$ ' + context.raw.toLocaleString();
-                                }
-                            }
-                        }
-                    }
+            try {
+                const response = await fetch(`/api/ranking?startDate=${startDate}&endDate=${endDate}`);
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar dados do ranking');
                 }
-            });
-        }
+                const data = await response.json();
+            } catch {
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+
+        });
         
         // Definir datas padrão (opcional)
         window.addEventListener('DOMContentLoaded', function() {

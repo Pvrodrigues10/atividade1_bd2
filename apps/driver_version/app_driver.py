@@ -91,6 +91,17 @@ def api_consulta_pedido():
             "success": False,
             "detail": f"Erro interno: {str(e)}"
         }), 500
+        
+@app.route("/api/ranking", methods=["GET"])
+def api_ranking():
+    try:
+        startDate = request.args.get("startDate")
+        endDate = request.args.get("endDate")
+        print(f"StartDate: {startDate}, EndDate: {endDate}")
+        ranking = PedidoController.consultaRanking(startDate, endDate)
+        return jsonify({"success": True, "ranking": ranking})
+    except Exception as e:
+        return jsonify({"success": False, "detail": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
