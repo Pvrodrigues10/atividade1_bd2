@@ -1,8 +1,7 @@
-from src.dao.pedido_dao import InserePedido, ConsultaIds
-from src.dao.relatorios_dao import Consulta
-from src.model.models import Order, Order_details
+from Dao.pedido_dao import InserePedido, ConsultaIds
+from Dao.relatorios_dao import Consulta
+from Model.model_driver import Orders, OrderDetails
 import time
-import random
 
 class PedidoController:
     @staticmethod
@@ -27,7 +26,7 @@ class PedidoController:
             timestamp = int(time.time() * 1000)  # milissegundos
             orderid = int(str(timestamp)[-5:])
             print(f"Novo orderid: {orderid}")
-            pedido = Order(
+            pedido = Orders(
                 orderid=orderid,
                 customerid=customer_id,
                 employeeid=employee_id,
@@ -44,7 +43,7 @@ class PedidoController:
                 
             # Inserir itens
             for item in items:
-                item_obj = Order_details(
+                item_obj = OrderDetails(
                     orderid=orderid,
                     productid=item['productid'],
                     unitprice=item['unitprice'],

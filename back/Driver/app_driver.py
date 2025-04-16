@@ -3,14 +3,13 @@ from pathlib import Path
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-# Adiciona o diretório raiz do projeto ao sys.path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-# Importações do projeto
-from src.controller.controler_ORM import PedidoController
 
-# Configuração de paths
-TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "src" / "view" / "templates"
+from Controller.pedido_controller import PedidoController
+
+
+TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "front" / "templates"
 
 # Inicialização do Flask
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
@@ -23,7 +22,7 @@ def home():
 
 @app.route("/novo_pedido")
 def novo_pedido():
-    return render_template("novo_pedidoORM.html")
+    return render_template("novo_pedido.html")
 
 @app.route("/consulta_pedido")
 def consulta_pedido():
@@ -42,9 +41,12 @@ def cadastrar_pedido():
         employee = dados.get("employee")
         items = dados.get("items")
 
+        # Verifica se o modo inseguro de injeção está ativado
+        injection = request.headers.get("X-Injection-Mode", "false").lower() == "true"
+
         # Processa o pedido
         orderid = PedidoController.criarPedidoCompleto(
-            customer, employee, items
+            customer, employee, items, injection
         )
 
         if orderid:
@@ -88,8 +90,7 @@ def api_consulta_pedido():
             "success": False,
             "detail": f"Erro interno: {str(e)}"
         }), 500
-    
-    
+        
 @app.route("/api/ranking", methods=["GET"])
 def api_ranking():
     try:

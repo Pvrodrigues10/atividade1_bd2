@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ranking de Vendedores - Northwind</title>
+    <style>
+      /* Estilos Base (consistentes com as outras páginas) */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f5f7fa;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .card-header {
+        background-color: #9b59b6; /* Roxo para diferenciar */
+        color: white;
+        padding: 20px;
+      }
+
+      .card-header h2 {
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card-body {
+        padding: 30px;
+      }
+
+      /* Estilos Específicos do Ranking */
+      .filter-section {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .filter-group {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .filter-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      .filter-group input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      .generate-btn {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        align-self: flex-end;
+        height: 40px;
+      }
+
+      .generate-btn:hover {
+        background-color: #2980b9;
+      }
+
+      /* Resultados do Ranking */
+      .ranking-container {
+        margin-top: 20px;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .period-info {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      /* Tabela de Ranking */
+      .ranking-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .ranking-table th {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        position: sticky;
+        top: 0;
+      }
+
+      .ranking-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .ranking-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .ranking-table tr:hover {
+        background-color: #f1f7fd;
+      }
+
+      .ranking-table .top-rank {
+        font-weight: bold;
+        color: #e67e22;
+      }
+
+      .ranking-table .medal {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 20px;
+        margin-right: 8px;
+        font-size: 0.8rem;
+      }
+
+      .gold {
+        background-color: #f1c40f;
+        color: white;
+      }
+
+      .silver {
+        background-color: #bdc3c7;
+        color: white;
+      }
+
+      .bronze {
+        background-color: #e67e22;
+        color: white;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      /* Gráfico */
+      .chart-container {
+        margin-top: 40px;
+        height: 300px;
+        position: relative;
+      }
+
+      /* Mensagem de erro */
+      .error-message {
+        display: none;
+        padding: 15px;
+        background-color: #f8d7da;
+        color: #721c24;
+        border-radius: 4px;
+        margin-top: 20px;
+        border-left: 4px solid #f5c6cb;
+      }
+
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .filter-section {
+          flex-direction: column;
+        }
+
+        .generate-btn {
+          align-self: stretch;
+        }
+
+        .ranking-table {
+          display: block;
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card-header">
+        <h2>Ranking de Vendedores</h2>
+      </div>
+
+      <div class="card-body">
+        <div class="filter-section">
+          <div class="filter-group">
+            <label for="start-date">Data Início</label>
+            <input type="date" id="start-date" class="form-control" />
+          </div>
+
+          <div class="filter-group">
+            <label for="end-date">Data Fim</label>
+            <input type="date" id="end-date" class="form-control" />
+          </div>
+
+          <button class="generate-btn" id="generate-btn">Gerar Ranking</button>
+        </div>
+
+        <div class="error-message" id="error-message">
+          Selecione um período válido para gerar o ranking.
+        </div>
+
+        <!-- Adicione esta seção para mostrar os resultados -->
+        <div
+          class="ranking-container"
+          id="ranking-container"
+          style="display: none"
+        >
+          <div class="period-info" id="period-info"></div>
+
+          <div class="table-responsive">
+            <table class="ranking-table">
+              <thead>
+                <tr>
+                  <th>Posição</th>
+                  <th>Vendedor</th>
+                  <th>Total de Pedidos</th>
+                  <th class="text-right">Total Vendido</th>
+                </tr>
+              </thead>
+              <tbody id="ranking-body">
+                <!-- Os dados serão inseridos aqui via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('generate-btn').addEventListener('click', async function() {
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    const rankingContainer = document.getElementById('ranking-container');
+    const errorMessage = document.getElementById('error-message');
+    
+    if (!startDate || !endDate) {
+        errorMessage.style.display = 'block';
+        rankingContainer.style.display = 'none';
+        return;
+    }
+    
+    try {
+        // Mostrar loading
+        rankingContainer.style.display = 'block';
+        errorMessage.style.display = 'none';
+        document.getElementById('ranking-body').innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+        
+        const response = await fetch(`/api/ranking?startDate=${startDate}&endDate=${endDate}`);
+        
+        if (!response.ok) {
+            throw new Error('Erro ao buscar dados do ranking');
+        }
+        
+        const responseData = await response.json(); // Recebe o objeto completo da API
+        
+        // Ajuste aqui: verifica se os dados estão em uma propriedade 'ranking'
+        const rankingData = responseData.ranking || responseData; // Tenta acessar 'ranking', senão usa o objeto direto
+        
+        // Verifica se é um array
+        if (!Array.isArray(rankingData)) {
+            throw new Error('Formato de dados inválido');
+        }
+        
+        // Formatar datas (dd/mm/aaaa)
+        const startFormatted = new Date(startDate).toLocaleDateString('pt-BR');
+        const endFormatted = new Date(endDate).toLocaleDateString('pt-BR');
+        
+        document.getElementById('period-info').textContent = 
+            `Período: ${startFormatted} a ${endFormatted}`;
+        
+        // Preencher tabela
+        const rankingBody = document.getElementById('ranking-body');
+        rankingBody.innerHTML = '';
+        
+        rankingData.forEach((employee, index) => {
+            const row = document.createElement('tr');
+            if (index < 3) row.classList.add('top-rank');
+            
+            row.innerHTML = `
+                <td>${formatPosition(index + 1)}</td>
+                <td>${employee.employee_name}</td>
+                <td>${employee.total_pedidos}</td>
+                <td class="text-right">${formatCurrency(employee.total_vendido)}</td>
+            `;
+            
+            rankingBody.appendChild(row);
+        });
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        errorMessage.textContent = error.message || 'Erro ao carregar o ranking';
+        errorMessage.style.display = 'block';
+        rankingContainer.style.display = 'none';
+    }
+});
+
+// Funções auxiliares
+function formatPosition(pos) {
+    const medals = ['gold', 'silver', 'bronze'];
+    if (pos <= 3) {
+        return `<span class="medal ${medals[pos - 1]}">${pos}º</span>`;
+    }
+    return `${pos}º`;
+}
+
+function formatCurrency(value) {
+    return value.toLocaleString('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL' 
+    });
+}
+    </script>
+  </body>
+</html>
