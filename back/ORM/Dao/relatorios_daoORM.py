@@ -65,7 +65,7 @@ class Consulta:
             return {
                 "orderid": pedido.orderid,
                 "orderdate": pedido.orderdate.strftime("%Y-%m-%d %H:%M:%S"),
-                "customerName": customer.companyname,
+                "customerName": customer.contactname,
                 "employeeName": f"{employee.firstname} {employee.lastname}",
                 "customerid": pedido.customerid,
                 "employeeid": pedido.employeeid,

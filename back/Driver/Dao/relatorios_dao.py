@@ -31,7 +31,7 @@ class Consulta:
             conn = connect()
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT companyname FROM northwind.customers WHERE customerid = %s",
+                    "SELECT contactname FROM northwind.customers WHERE customerid = %s",
                     (customerid,)
                 )
                 result = cursor.fetchone()
@@ -55,7 +55,7 @@ class Consulta:
                     SELECT 
                         o.orderid,
                         o.orderdate,
-                        c.companyname,
+                        c.contactname,
                         e.firstname,
                         e.lastname,
                         o.customerid,
