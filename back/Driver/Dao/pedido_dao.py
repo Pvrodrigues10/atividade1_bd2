@@ -67,18 +67,25 @@ class InserePedido:
 
 class ConsultaIds:
     @staticmethod
+
     def consultar_ids_inseguro(employee, customer):
         conn = None
         try:
             conn = connect()
             with conn.cursor() as cursor:
-                cursor.execute(f'SELECT orderid FROM northwind.employees WHERE firstname = {employee}')
-                cursor.execute(f'SELECT orderid FROM northwind.customers WHERE contactname = {customer}')
-                employeeid = [row[0] for row in cursor.fetchall()]
-                return employeeid
+                cursor.execute(f"SELECT employeeid FROM northwind.employees WHERE firstname = '{employee}'")
+                employee_ids = [row[0] for row in cursor.fetchall()]
+                cursor.execute(f"SELECT customerid FROM northwind.customers WHERE contactname = '{customer}'")
+                customer_ids = [row[0] for row in cursor.fetchall()]
+                
+                return {
+                    'employee_ids': employee_ids,
+                    'customer_ids': customer_ids
+                }
+            
         except Exception as e:
             print(f"Erro ao consultar IDs: {e}")
-            return []
+            return {'employee_ids': [], 'customer_ids': []}
         finally:
             if conn: conn.close()
 
